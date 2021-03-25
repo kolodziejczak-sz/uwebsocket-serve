@@ -1,11 +1,15 @@
 {
     "name": "uwebsocket-serve",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "description": "Static file serving for uWebSockets.js",
+    "main": "dist/index.js",
     "scripts": {
         "lint": "eslint ./src/**/*.ts",
         "build": "npm run lint && tsc"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kolodziejczak-sz/uwebsocket-serve.git"
     },
     "keywords": [
         "socket",
