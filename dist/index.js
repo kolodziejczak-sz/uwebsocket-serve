@@ -1,10 +1,16 @@
-import { createReadStream, statSync, existsSync } from 'fs';
-import path from 'path';
-import mime from 'mime-types';
-export const serveDir = (dir) => (res, req) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.serveDir = void 0;
+const fs_1 = require("fs");
+const path_1 = __importDefault(require("path"));
+const mime_types_1 = __importDefault(require("mime-types"));
+const serveDir = (dir) => (res, req) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
-        const filePath = path.resolve(dir, url);
+        const filePath = path_1.default.resolve(dir, url);
         const fileStats = getFileStats(filePath);
         if (!fileStats) {
             res.writeStatus('404');
@@ -27,13 +33,14 @@ export const serveDir = (dir) => (res, req) => {
         res.end(error);
     }
 };
+exports.serveDir = serveDir;
 const getFileStats = (filePath) => {
-    if (!existsSync(filePath)) {
+    if (!fs_1.existsSync(filePath)) {
         return;
     }
-    const fileExtension = path.extname(filePath);
-    const contentType = mime.lookup(fileExtension);
-    const { mtimeMs, size } = statSync(filePath);
+    const fileExtension = path_1.default.extname(filePath);
+    const contentType = mime_types_1.default.lookup(fileExtension);
+    const { mtimeMs, size } = fs_1.statSync(filePath);
     const lastModified = new Date(mtimeMs).toUTCString();
     return { filePath, lastModified, size, contentType };
 };
@@ -42,7 +49,7 @@ const toArrayBuffer = (buffer) => {
     return arrayBuffer.slice(byteOffset, byteOffset + byteLength);
 };
 const streamFile = (res, { filePath, size }) => {
-    const readStream = createReadStream(filePath);
+    const readStream = fs_1.createReadStream(filePath);
     const destroyReadStream = () => !readStream.destroyed && readStream.destroy();
     const onError = (error) => {
         destroyReadStream();
