@@ -1,0 +1,39 @@
+{
+    "name": "uwebsocket-serve",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint ./src/**/*.ts",
+        "build": "npm run lint && tsc"
+    },
+    "keywords": [
+        "socket",
+        "websocket",
+        "uwebsocket",
+        "uwebsocket.js",
+        "serve",
+        "file",
+        "dir",
+        "static",
+        "static-serve"
+    ],
+    "author": "",
+    "license": "ISC",
+    "peerDependencies": {
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v18.14.0"
+    },
+    "dependencies": {
+        "mime-types": "^2.1.29"
+    },
+    "devDependencies": {
+        "@types/node": "^14.14.35",
+        "@typescript-eslint/eslint-plugin": "^4.19.0",
+        "@typescript-eslint/parser": "^4.19.0",
+        "eslint": "^7.22.0",
+        "eslint-config-prettier": "^8.1.0",
+        "eslint-plugin-prettier": "^3.3.1",
+        "typescript": "^4.2.3",
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v18.14.0"
+    }
+}

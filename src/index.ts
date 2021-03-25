@@ -1,0 +1,95 @@
+import { createReadStream, statSync, existsSync } from 'fs';
+import path from 'path';
+import mime from 'mime-types';
+import { HttpResponse, HttpRequest } from 'uWebSockets.js';
+
+export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) => {
+    try {
+        const url = req.getUrl().slice(1) || 'index.html';
+        const filePath = path.resolve(dir, url);
+        const fileStats = getFileStats(filePath);
+
+        if (!fileStats) {
+            res.writeStatus('404');
+            res.end();
+            return;
+        }
+
+        const { contentType, lastModified } = fileStats;
+        const ifModifiedSince = req.getHeader('if-modified-since');
+
+        if (ifModifiedSince === lastModified) {
+            res.writeStatus('304');
+            res.end();
+            return;
+        }
+
+        res.writeHeader('Content-Type', contentType);
+        res.writeHeader('Last-Modified', lastModified);
+
+        streamFile(res, fileStats);
+    } catch (error) {
+        res.writeStatus('500');
+        res.end(error);
+    }
+};
+
+const getFileStats = (filePath: string) => {
+    if (!existsSync(filePath)) {
+        return;
+    }
+    const fileExtension = path.extname(filePath);
+    const contentType = mime.lookup(fileExtension);
+    const { mtimeMs, size } = statSync(filePath);
+    const lastModified = new Date(mtimeMs).toUTCString();
+
+    return { filePath, lastModified, size, contentType };
+};
+
+const toArrayBuffer = (buffer: Buffer) => {
+    const { buffer: arrayBuffer, byteOffset, byteLength } = buffer;
+    return arrayBuffer.slice(byteOffset, byteOffset + byteLength);
+};
+
+const streamFile = (
+    res: HttpResponse,
+    { filePath, size }: ReturnType<typeof getFileStats>
+) => {
+    const readStream = createReadStream(filePath);
+    const destroyReadStream = () => !readStream.destroyed && readStream.destroy();
+
+    const onError = (error: Error) => {
+        destroyReadStream();
+        throw error;
+    };
+
+    const onDataChunk = (chunk: Buffer) => {
+        const arrayBufferChunk = toArrayBuffer(chunk);
+
+        const lastOffset = res.getWriteOffset();
+        const [ok, done] = res.tryEnd(arrayBufferChunk, size);
+
+        if (!done && !ok) {
+            readStream.pause();
+
+            res.arrayBufferChunk = arrayBufferChunk;
+            res.arrayBufferChunkOffset = lastOffset;
+
+            res.onWritable((offset) => {
+                const [ok, done] = res.tryEnd(
+                    res.arrayBufferChunk.slice(offset - res.arrayBufferChunkOffset),
+                    size
+                );
+
+                if (!done && ok) {
+                    readStream.resume();
+                }
+
+                return ok;
+            });
+        }
+    };
+
+    res.onAborted(destroyReadStream);
+    readStream.on('data', onDataChunk).on('error', onError).on('end', destroyReadStream);
+};
