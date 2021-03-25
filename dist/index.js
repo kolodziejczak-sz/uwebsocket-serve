@@ -61,10 +61,8 @@ const streamFile = (res, { filePath, size }) => {
         const [ok, done] = res.tryEnd(arrayBufferChunk, size);
         if (!done && !ok) {
             readStream.pause();
-            res.arrayBufferChunk = arrayBufferChunk;
-            res.arrayBufferChunkOffset = lastOffset;
             res.onWritable((offset) => {
-                const [ok, done] = res.tryEnd(res.arrayBufferChunk.slice(offset - res.arrayBufferChunkOffset), size);
+                const [ok, done] = res.tryEnd(arrayBufferChunk.slice(offset - lastOffset), size);
                 if (!done && ok) {
                     readStream.resume();
                 }
