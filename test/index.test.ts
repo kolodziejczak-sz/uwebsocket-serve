@@ -11,6 +11,17 @@ const createReqUrl = (file = '') => `http://localhost:${httpServerPort}/${file}`
 
 const serveDir = suite('serveDir');
 
+serveDir('should respond with a file', async () => {
+    const fileName = 'hello_world.json';
+    const fileContent = require(path.resolve(filesPath, fileName));
+
+    const res = await get(createReqUrl(fileName));
+
+    assert.is(res.statusCode, 200);
+    assert.is(res.headers['content-type'], 'application/json');
+    assert.equal(res.data, fileContent);
+});
+
 serveDir('should lookup for an index.html file if a req path is /', async () => {
     const res = await get(createReqUrl());
 
@@ -18,29 +29,19 @@ serveDir('should lookup for an index.html file if a req path is /', async () => 
     assert.is(res.headers['content-type'], 'text/html');
 });
 
-serveDir('should respond with a file', async () => {
-    const fileName = 'hello_world.json';
-    const fileContent = require(path.resolve(filesPath, fileName));
-
-    const res = await get(createReqUrl('hello_world.json'));
-
-    assert.is(res.statusCode, 200);
-    assert.is(res.headers['content-type'], 'application/json');
-    assert.equal(res.data, fileContent);
-});
-
-serveDir('should respond with a 404 when requested file does not exist', async () => {
+serveDir('should respond with a 404 when a requested file does not exist', async () => {
     await get(createReqUrl('any.gif')).catch((res) => {
         assert.is(res.statusCode, 404);
     });
 });
 
 serveDir('should return a 304 when if-modified-since header is correct', async () => {
-    const filePath = path.resolve(filesPath, 'index.html');
+    const fileName = 'index.html';
+    const filePath = path.resolve(filesPath, fileName);
     const { mtimeMs } = statSync(filePath);
     const lastModified = new Date(mtimeMs).toUTCString();
 
-    const res = await get(createReqUrl('index.html'), {
+    const res = await get(createReqUrl(fileName), {
         headers: {
             'If-Modified-Since': lastModified,
         },
