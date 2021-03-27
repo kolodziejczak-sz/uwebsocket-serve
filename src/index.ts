@@ -3,8 +3,19 @@ import path from 'path';
 import mime from 'mime-types';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
 
+const allowedMethods = ['get', 'head'];
+
 export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) => {
     try {
+        const method = req.getMethod();
+
+        if (!allowedMethods.includes(method)) {
+            res.writeStatus('405');
+            res.writeHeader('Allow', 'GET, HEAD');
+            res.end();
+            return;
+        }
+
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path.resolve(dir, url);
         const fileStats = getFileStats(filePath);
@@ -15,7 +26,7 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
             return;
         }
 
-        const { contentType, lastModified } = fileStats;
+        const { contentType, lastModified, size } = fileStats;
         const ifModifiedSince = req.getHeader('if-modified-since');
 
         if (ifModifiedSince === lastModified) {
@@ -26,6 +37,12 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
 
         res.writeHeader('Content-Type', contentType);
         res.writeHeader('Last-Modified', lastModified);
+
+        if (method === 'head') {
+            res.writeHeader('Content-Length', size.toString());
+            res.end();
+            return;
+        }
 
         streamFile(res, fileStats);
     } catch (error) {
