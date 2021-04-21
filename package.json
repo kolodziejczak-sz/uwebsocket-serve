@@ -1,8 +1,9 @@
 {
     "name": "uwebsocket-serve",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Static file serving for uWebSockets.js",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "prepublish": "npm run lint && npm run test && npm run build",
         "test": "uvu -r esbuild-register",
@@ -27,7 +28,7 @@
     "author": "",
     "license": "ISC",
     "peerDependencies": {
-        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v18.14.0"
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v19.2.0"
     },
     "dependencies": {
         "mime-types": "^2.1.29"
@@ -42,8 +43,9 @@
         "eslint-config-prettier": "^8.1.0",
         "eslint-plugin-prettier": "^3.3.1",
         "httpie": "^1.1.2",
+        "prettier": "^2.2.1",
         "typescript": "^4.2.3",
-        "uvu": "^0.5.1",
-        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v18.14.0"
+        "uWebSockets.js": "github:uNetworking/uWebSockets.js#v19.2.0",
+        "uvu": "^0.5.1"
     }
 }

@@ -1,6 +1,6 @@
 import path from 'path';
 import { App } from 'uWebSockets.js';
-import { serveDir } from '../../src/index';
+import { serveDir } from '../../dist/index';
 
 const args = process.argv.slice(2);
 const [port] = args;
