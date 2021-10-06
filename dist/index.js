@@ -11,6 +11,11 @@ const serveDir = (dir) => (res, req) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path_1.default.resolve(dir, url);
+        if (filePath.indexOf(path_1.default.resolve(dir)) !== 0) {
+            res.writeStatus('403');
+            res.end();
+            return;
+        }
         const fileStats = getFileStats(filePath);
         if (!fileStats) {
             res.writeStatus('404');
