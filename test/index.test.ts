@@ -29,6 +29,15 @@ serveDir('should lookup for an index.html file if a req path is /', async () => 
     assert.is(res.headers['content-type'], 'text/html');
 });
 
+serveDir(
+    'should respond with a 403 when a requested file is outside the dir',
+    async () => {
+        await get(createReqUrl('../../any.gif')).catch((res) => {
+            assert.is(res.statusCode, 403);
+        });
+    }
+);
+
 serveDir('should respond with a 404 when a requested file does not exist', async () => {
     await get(createReqUrl('any.gif')).catch((res) => {
         assert.is(res.statusCode, 404);
@@ -63,16 +72,11 @@ const runHttpServer = () => {
 
     return new Promise<void>((resolve) => {
         httpServer = exec(`node -r esbuild-register ${scriptPath} ${httpServerPort}`);
+        httpServer.stdout.on('data', console.log);
         httpServer.stdout.once('data', () => resolve());
-
-        ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException', 'SIGTERM'].forEach(
-            (eventType) => {
-                process.on(eventType, killHttpServer);
-            }
-        );
     });
 };
 
 serveDir.before(async () => await runHttpServer());
-serveDir.after(() => process.exit());
+serveDir.after(() => killHttpServer());
 serveDir.run();

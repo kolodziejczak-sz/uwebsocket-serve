@@ -7,7 +7,6 @@ const [port] = args;
 const publicPath = path.resolve(__dirname, 'public');
 
 const serveFiles = serveDir(publicPath);
-
 App()
     .get('/*', serveFiles)
     .listen(Number(port), (token) => {

@@ -7,8 +7,9 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path.resolve(dir, url);
+        const isFileOutsideDir = filePath.indexOf(path.resolve(dir)) !== 0;
 
-        if (filePath.indexOf(path.resolve(dir)) !== 0) {
+        if (isFileOutsideDir) {
             res.writeStatus('403');
             res.end();
             return;

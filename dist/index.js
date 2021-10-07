@@ -11,7 +11,8 @@ const serveDir = (dir) => (res, req) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path_1.default.resolve(dir, url);
-        if (filePath.indexOf(path_1.default.resolve(dir)) !== 0) {
+        const isFileOutsideDir = filePath.indexOf(path_1.default.resolve(dir)) !== 0;
+        if (isFileOutsideDir) {
             res.writeStatus('403');
             res.end();
             return;
