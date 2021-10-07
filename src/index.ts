@@ -7,6 +7,13 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path.resolve(dir, url);
+
+        if (filePath.indexOf(path.resolve(dir)) !== 0) {
+            res.writeStatus('403');
+            res.end();
+            return;
+        }
+
         const fileStats = getFileStats(filePath);
 
         if (!fileStats) {
