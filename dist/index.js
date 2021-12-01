@@ -41,15 +41,13 @@ const serveDir = (dir) => (res, req) => {
 };
 exports.serveDir = serveDir;
 const getFileStats = (filePath) => {
-    if (!fs_1.existsSync(filePath)) {
-        return;
-    }
-    if (fs_1.lstatSync(filePath).isDirectory()) {
+    const stats = fs_1.lstatSync(filePath, { throwIfNoEntry: false });
+    if (!stats || stats.isDirectory()) {
         return;
     }
     const fileExtension = path_1.default.extname(filePath);
     const contentType = mime_types_1.default.lookup(fileExtension);
-    const { mtimeMs, size } = fs_1.statSync(filePath);
+    const { mtimeMs, size } = stats;
     const lastModified = new Date(mtimeMs).toUTCString();
     return { filePath, lastModified, size, contentType };
 };
