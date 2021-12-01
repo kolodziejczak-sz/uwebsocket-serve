@@ -1,4 +1,4 @@
-import { createReadStream, lstatSync } from 'fs';
+import { createReadStream, lstatSync, Stats } from 'fs';
 import path from 'path';
 import mime from 'mime-types';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
@@ -43,7 +43,7 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
 };
 
 const getFileStats = (filePath: string) => {
-    const stats = lstatSync(filePath, { throwIfNoEntry: false });
+    const stats: Stats | undefined = lstatSync(filePath, { throwIfNoEntry: false });
 
     if (!stats || stats.isDirectory()) {
         return;
