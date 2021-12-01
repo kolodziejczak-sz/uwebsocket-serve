@@ -84,5 +84,8 @@ const runHttpServer = () => {
 };
 
 serveDir.before(async () => await runHttpServer());
-serveDir.after(() => killHttpServer());
+serveDir.after(() => {
+    killHttpServer();
+    setTimeout(() => process.exit(), 500);
+});
 serveDir.run();
