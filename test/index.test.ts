@@ -44,6 +44,12 @@ serveDir('should respond with a 404 when a requested file does not exist', async
     });
 });
 
+serveDir('should respond with a 404 when a requested dir', async () => {
+    await get(createReqUrl('empty_dir')).catch((res) => {
+        assert.is(res.statusCode, 404);
+    });
+});
+
 serveDir('should return a 304 when if-modified-since header is correct', async () => {
     const fileName = 'index.html';
     const filePath = path.resolve(filesPath, fileName);

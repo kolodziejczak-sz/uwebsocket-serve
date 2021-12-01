@@ -1,4 +1,4 @@
-import { createReadStream, statSync, existsSync } from 'fs';
+import { createReadStream, statSync, existsSync, lstatSync } from 'fs';
 import path from 'path';
 import mime from 'mime-types';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
@@ -44,6 +44,9 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
 
 const getFileStats = (filePath: string) => {
     if (!existsSync(filePath)) {
+        return;
+    }
+    if (lstatSync(filePath).isDirectory()) {
         return;
     }
     const fileExtension = path.extname(filePath);

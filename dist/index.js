@@ -44,6 +44,9 @@ const getFileStats = (filePath) => {
     if (!fs_1.existsSync(filePath)) {
         return;
     }
+    if (fs_1.lstatSync(filePath).isDirectory()) {
+        return;
+    }
     const fileExtension = path_1.default.extname(filePath);
     const contentType = mime_types_1.default.lookup(fileExtension);
     const { mtimeMs, size } = fs_1.statSync(filePath);
