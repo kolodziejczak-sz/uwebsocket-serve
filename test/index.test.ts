@@ -44,7 +44,7 @@ serveDir('should respond with a 404 when a requested file does not exist', async
     });
 });
 
-serveDir('should respond with a 404 when a requested dir', async () => {
+serveDir('should respond with a 404 when a requested path is dir', async () => {
     await get(createReqUrl('empty_dir')).catch((res) => {
         assert.is(res.statusCode, 404);
     });
