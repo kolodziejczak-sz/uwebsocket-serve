@@ -22,6 +22,14 @@ serveDir('should respond with a file', async () => {
     assert.equal(res.data, fileContent);
 });
 
+serveDir('should send a big chunk of data', async () => {
+    const fileName = 'big_file.json';
+
+    const res = await get(createReqUrl(fileName));
+
+    assert.is(res.statusCode, 200);
+});
+
 serveDir('should lookup for an index.html file if a req path is /', async () => {
     const res = await get(createReqUrl());
 
