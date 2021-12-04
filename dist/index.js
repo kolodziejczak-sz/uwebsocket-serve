@@ -41,7 +41,7 @@ const serveDir = (dir) => (res, req) => {
 };
 exports.serveDir = serveDir;
 const getFileStats = (filePath) => {
-    const stats = fs_1.lstatSync(filePath, { throwIfNoEntry: false });
+    const stats = (0, fs_1.lstatSync)(filePath, { throwIfNoEntry: false });
     if (!stats || stats.isDirectory()) {
         return;
     }
@@ -56,7 +56,7 @@ const toArrayBuffer = (buffer) => {
     return arrayBuffer.slice(byteOffset, byteOffset + byteLength);
 };
 const streamFile = (res, { filePath, size }) => {
-    const readStream = fs_1.createReadStream(filePath);
+    const readStream = (0, fs_1.createReadStream)(filePath);
     const destroyReadStream = () => !readStream.destroyed && readStream.destroy();
     const onError = (error) => {
         destroyReadStream();
