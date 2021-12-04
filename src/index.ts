@@ -50,8 +50,8 @@ const getFileStats = (filePath: string) => {
     }
     const fileExtension = path.extname(filePath);
     const contentType = mime.lookup(fileExtension);
-    const { mtimeMs, size } = stats;
-    const lastModified = new Date(mtimeMs).toUTCString();
+    const { mtime, size } = stats;
+    const lastModified = mtime.toUTCString();
 
     return { filePath, lastModified, size, contentType };
 };
