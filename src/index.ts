@@ -1,6 +1,6 @@
 import { createReadStream, lstatSync, Stats } from 'fs';
 import path from 'path';
-import mime from 'mime-types';
+import mime from 'mrmime';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
 
 export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) => {
@@ -49,7 +49,7 @@ const getFileStats = (filePath: string) => {
         return;
     }
     const fileExtension = path.extname(filePath);
-    const contentType = mime.lookup(fileExtension);
+    const contentType = mime.lookup(fileExtension) || 'application/octet-stream';
     const { mtime, size } = stats;
     const lastModified = mtime.toUTCString();
 

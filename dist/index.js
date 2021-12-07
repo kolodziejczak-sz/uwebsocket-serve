@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.serveDir = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
-const mime_types_1 = __importDefault(require("mime-types"));
+const mrmime_1 = __importDefault(require("mrmime"));
 const serveDir = (dir) => (res, req) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
@@ -46,9 +46,9 @@ const getFileStats = (filePath) => {
         return;
     }
     const fileExtension = path_1.default.extname(filePath);
-    const contentType = mime_types_1.default.lookup(fileExtension);
-    const { mtimeMs, size } = stats;
-    const lastModified = new Date(mtimeMs).toUTCString();
+    const contentType = mrmime_1.default.lookup(fileExtension) || 'application/octet-stream';
+    const { mtime, size } = stats;
+    const lastModified = mtime.toUTCString();
     return { filePath, lastModified, size, contentType };
 };
 const toArrayBuffer = (buffer) => {

@@ -1,6 +1,6 @@
 {
     "name": "uwebsocket-serve",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Static file serving for uWebSockets.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
         "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.4.0"
     },
     "dependencies": {
-        "mime-types": "^2.1.29"
+        "mrmime": "^1.0.0"
     },
     "devDependencies": {
         "@types/node": "^16.11.11",
