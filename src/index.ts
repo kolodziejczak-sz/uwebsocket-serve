@@ -3,54 +3,55 @@ import path from 'path';
 import mime from 'mrmime';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
 
-export const serveDir = (dir: string, notFoundFile?: string) => (res: HttpResponse, req: HttpRequest) => {
-    try {
-        const url = req.getUrl().slice(1) || 'index.html';
-        const filePath = path.resolve(dir, url);
-        const isFileOutsideDir = filePath.indexOf(path.resolve(dir)) !== 0;
+export const serveDir =
+    (dir: string, notFoundFile?: string) => (res: HttpResponse, req: HttpRequest) => {
+        try {
+            const url = req.getUrl().slice(1) || 'index.html';
+            const filePath = path.resolve(dir, url);
+            const isFileOutsideDir = filePath.indexOf(path.resolve(dir)) !== 0;
 
-        if (isFileOutsideDir) {
-            res.writeStatus('403');
-            res.end();
-            return;
-        }
-
-        const fileStats = getFileStats(filePath);
-
-        if (!fileStats) {
-            res.writeStatus('404');
-            if (notFoundFile) {
-                const notFoundStats = getFileStats(notFoundFile);
-                if (notFoundStats) {
-                    res.writeHeader('Content-Type', notFoundStats.contentType);
-                    streamFile(res, notFoundStats);
-                    return;
-                }
+            if (isFileOutsideDir) {
+                res.writeStatus('403');
+                res.end();
+                return;
             }
-            
-            res.end();
-            
-            return;
+
+            const fileStats = getFileStats(filePath);
+
+            if (!fileStats) {
+                res.writeStatus('404');
+                if (notFoundFile) {
+                    const notFoundStats = getFileStats(notFoundFile);
+                    if (notFoundStats) {
+                        res.writeHeader('Content-Type', notFoundStats.contentType);
+                        streamFile(res, notFoundStats);
+                        return;
+                    }
+                }
+
+                res.end();
+
+                return;
+            }
+
+            const { contentType, lastModified } = fileStats;
+            const ifModifiedSince = req.getHeader('if-modified-since');
+
+            if (ifModifiedSince === lastModified) {
+                res.writeStatus('304');
+                res.end();
+                return;
+            }
+
+            res.writeHeader('Content-Type', contentType);
+            res.writeHeader('Last-Modified', lastModified);
+
+            streamFile(res, fileStats);
+        } catch (error) {
+            res.writeStatus('500');
+            res.end(error);
         }
-
-        const { contentType, lastModified } = fileStats;
-        const ifModifiedSince = req.getHeader('if-modified-since');
-
-        if (ifModifiedSince === lastModified) {
-            res.writeStatus('304');
-            res.end();
-            return;
-        }
-
-        res.writeHeader('Content-Type', contentType);
-        res.writeHeader('Last-Modified', lastModified);
-
-        streamFile(res, fileStats);
-    } catch (error) {
-        res.writeStatus('500');
-        res.end(error);
-    }
-};
+    };
 
 const getFileStats = (filePath: string) => {
     const stats: Stats | undefined = lstatSync(filePath, { throwIfNoEntry: false });
