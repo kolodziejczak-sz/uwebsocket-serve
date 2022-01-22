@@ -3,7 +3,7 @@ import path from 'path';
 import mime from 'mrmime';
 import { HttpResponse, HttpRequest } from 'uWebSockets.js';
 
-export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) => {
+export const serveDir = (dir: string, notFoundFile?: string) => (res: HttpResponse, req: HttpRequest) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path.resolve(dir, url);
@@ -19,7 +19,17 @@ export const serveDir = (dir: string) => (res: HttpResponse, req: HttpRequest) =
 
         if (!fileStats) {
             res.writeStatus('404');
+            if (notFoundFile) {
+                const notFoundStats = getFileStats(notFoundFile);
+                if (notFoundStats) {
+                    res.writeHeader('Content-Type', notFoundStats.contentType);
+                    streamFile(res, notFoundStats);
+                    return;
+                }
+            }
+            
             res.end();
+            
             return;
         }
 
