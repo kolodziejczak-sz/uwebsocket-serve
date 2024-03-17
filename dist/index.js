@@ -7,7 +7,7 @@ exports.serveDir = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const mrmime_1 = __importDefault(require("mrmime"));
-const serveDir = (dir) => (res, req) => {
+const serveDir = (dir, notFoundFile) => (res, req) => {
     try {
         const url = req.getUrl().slice(1) || 'index.html';
         const filePath = path_1.default.resolve(dir, url);
@@ -20,6 +20,14 @@ const serveDir = (dir) => (res, req) => {
         const fileStats = getFileStats(filePath);
         if (!fileStats) {
             res.writeStatus('404');
+            if (notFoundFile) {
+                const notFoundStats = getFileStats(notFoundFile);
+                if (notFoundStats) {
+                    res.writeHeader('Content-Type', notFoundStats.contentType);
+                    streamFile(res, notFoundStats);
+                    return;
+                }
+            }
             res.end();
             return;
         }
